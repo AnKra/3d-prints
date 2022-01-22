@@ -22,12 +22,22 @@ module inside_pyramid(wall_thickness_) {
     square([inside_base_edge_length, inside_base_edge_length], center = true);
 }
 
-difference() {
-    outside_pyramid();
-    inside_pyramid(wall_thickness);
-    
-    if(add_hole_for_hanging) {
-        translate ([0, outside_base_edge_length / 2.0, 0.85 * outside_height]) rotate ([90, 0, 0]) cylinder (h = outside_base_edge_length, r = 0.5, center = false, $fn = 100);
+$fn=50;
+module hollow_pyramid() {
+    minkowski() {
+        cylinder(r=1, h=0.1);
+        difference() {
+            outside_pyramid();
+            inside_pyramid(wall_thickness);
+        }
     }
 }
 
+if(add_hole_for_hanging) {
+    difference() {
+        hollow_pyramid();
+        translate ([0, outside_base_edge_length / 2.0, 0.8 * outside_height]) rotate ([90, 0, 0]) cylinder (h = outside_base_edge_length, r = 1.0, center = false, $fn = 100);
+    }
+} else {
+    hollow_pyramid();
+}
