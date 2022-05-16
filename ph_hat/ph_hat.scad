@@ -41,6 +41,9 @@ bulb_spacing = 10;
 pole_diameter = 5;
 number_of_poles = 3;
 
+print_hat = true;
+print_foot = true;
+
 //////////////////////////////////////////////////
 // useful variables
 //////////////////////////////////////////////////
@@ -83,7 +86,6 @@ module hat(hat_height, hat_diameter, hat_wall_thickness, hat_fn) {
         cube(size=cube_size, center=false);
     }
 }
-hat(hat_height, hat_diameter, hat_wall_thickness, hat_fn);
 
 //////////////////////////////////////////////////
 // SCARF WITH FOOT ///////////////////////////////
@@ -101,7 +103,6 @@ module scarf(scarf_distance_to_hat, scarf_height, scarf_radius, scarf_wall_thick
         cylinder(h=scarf_height, r=(cylinder_radius_inner), $fn=100);
     }
 }
-scarf(scarf_distance_to_hat, scarf_height, scarf_radius, scarf_wall_thickness);
 
 module foot(scarf_distance_to_hat, scarf_height, foot_height, foot_radius, scarf_radius) {
     cylinder_distance_to_hat = scarf_distance_to_hat + scarf_height + foot_height;
@@ -115,11 +116,11 @@ module foot(scarf_distance_to_hat, scarf_height, foot_height, foot_radius, scarf
         cylinder(h=foot_height, r=(cylinder_radius_inner), $fn=100);
     }
 }
-foot(scarf_distance_to_hat, scarf_height, foot_height, foot_radius, scarf_radius);
 
 //////////////////////////////////////////////////
 // POLES /////////////////////////////////////////
 //////////////////////////////////////////////////
+
 module pole(scarf_distance_to_hat, scarf_height, hat_height, x, y) {
     cylinder_distance_to_hat = scarf_distance_to_hat + scarf_height;
     cylinder_height = cylinder_distance_to_hat + hat_height;
@@ -159,4 +160,16 @@ module poles(scarf_distance_to_hat, scarf_height, hat_height, hat_diameter, pole
     }
 }
 
-poles(scarf_distance_to_hat, scarf_height, hat_height, hat_diameter, pole_offset, number_of_poles, hat_height, hat_fn);
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
+
+if(print_hat) {
+    hat(hat_height, hat_diameter, hat_wall_thickness, hat_fn);
+    poles(scarf_distance_to_hat, scarf_height, hat_height, hat_diameter, pole_offset,   number_of_poles, hat_height, hat_fn);
+}
+
+if(print_foot) {
+    scarf(scarf_distance_to_hat, scarf_height, scarf_radius, scarf_wall_thickness);
+    foot(scarf_distance_to_hat, scarf_height, foot_height, foot_radius, scarf_radius);
+}
