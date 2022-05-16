@@ -24,9 +24,10 @@
 // constants
 //////////////////////////////////////////////////
 
-hat_diameter = 200;
+hat_diameter = 187;
 hat_height = 20 / 3 * 10;
-hat_wall_thickness = 2;
+hat_wall_thickness = 1;
+hat_fn = 300;
 
 scarf_distance_to_hat = 25;
 scarf_height = 60;
@@ -60,7 +61,7 @@ function sphere_outer_radius(hat_height, hat_diameter) = (hat_height / 2) + (pow
 
 function sphere_translation_z(sphere_outer_radius, hat_height) = sphere_outer_radius - hat_height;
 
-module hat(hat_height, hat_diameter, hat_wall_thickness) {
+module hat(hat_height, hat_diameter, hat_wall_thickness, hat_fn) {
     // calculate radius of outer shpere
     sphere_outer_radius = sphere_outer_radius(hat_height, hat_diameter);
 
@@ -75,14 +76,14 @@ module hat(hat_height, hat_diameter, hat_wall_thickness) {
     difference() {
         translate([0, 0, -sphere_translation_z])
         difference() {
-            sphere(r=sphere_outer_radius, $fn=100);
-            sphere(r=sphere_inner_radius, $fn=100);
+            sphere(r=sphere_outer_radius, $fn=hat_fn);
+            sphere(r=sphere_inner_radius, $fn=hat_fn);
         }
         translate([-0.5 * cube_size, -0.5 * cube_size, -cube_size])
         cube(size=cube_size, center=false);
     }
 }
-hat(hat_height, hat_diameter, hat_wall_thickness);
+hat(hat_height, hat_diameter, hat_wall_thickness, hat_fn);
 
 //////////////////////////////////////////////////
 // SCARF WITH FOOT ///////////////////////////////
@@ -142,7 +143,7 @@ module poles_raw(scarf_distance_to_hat, scarf_height, hat_height, pole_distance_
     }
 }
 
-module poles(scarf_distance_to_hat, scarf_height, hat_height, hat_diameter, pole_distance_from_center, number_of_poles, hat_height) {
+module poles(scarf_distance_to_hat, scarf_height, hat_height, hat_diameter, pole_distance_from_center, number_of_poles, hat_height, hat_fn) {
     sphere_outer_radius = sphere_outer_radius(hat_height, hat_diameter);
 
     sphere_translation_z = sphere_translation_z(sphere_outer_radius, hat_height);
@@ -152,10 +153,10 @@ module poles(scarf_distance_to_hat, scarf_height, hat_height, hat_diameter, pole
         poles_raw(scarf_distance_to_hat, scarf_height, hat_height, pole_distance_from_center, number_of_poles);
         translate([0, 0, -sphere_translation_z])
         difference() {
-            sphere(r=sphere_outer_radius + hat_height, $fn=100);
-            sphere(r=sphere_outer_radius, $fn=100);
+            sphere(r=sphere_outer_radius + hat_height, $fn=hat_fn);
+            sphere(r=sphere_outer_radius, $fn=hat_fn);
         }
     }
 }
 
-poles(scarf_distance_to_hat, scarf_height, hat_height, hat_diameter, pole_offset, number_of_poles, hat_height);
+poles(scarf_distance_to_hat, scarf_height, hat_height, hat_diameter, pole_offset, number_of_poles, hat_height, hat_fn);
