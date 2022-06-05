@@ -31,19 +31,22 @@ hat_fn = 300;  // 300
 
 scarf_distance_to_hat = 25;
 scarf_height = 60;
-scarf_diameter = 44;
+scarf_diameter = 45;
 scarf_wall_thickness = 2;
 
-foot_height = 4;
+foot_height = 6;
 bulb_diameter = 60;  // alternative: 10
-bulb_spacing = 10;
+bulb_spacing = 15;
 
 pole_outer_diameter = 8;
-pole_inner_diameter = 3;
 number_of_poles = 3;
 
+screw_head_height = 0.5 * foot_height;
+screw_shaft_outer_diameter = 4;
+screw_shaft_inner_diameter = 3;
+
 print_hat = true;
-print_foot = false;
+print_foot = true;
 
 //////////////////////////////////////////////////
 // useful variables
@@ -54,6 +57,9 @@ scarf_radius = scarf_diameter / 2;
 foot_diameter = bulb_diameter + 2 * bulb_spacing;
 foot_radius = foot_diameter / 2;
 
+screw_shaft_outer_radius = screw_shaft_outer_diameter / 2;
+
+pole_inner_diameter = screw_shaft_inner_diameter;
 pole_outer_radius = pole_outer_diameter / 2;
 pole_inner_radius = pole_inner_diameter / 2;
 pole_offset = foot_radius - pole_outer_radius;
@@ -160,11 +166,11 @@ module foot(scarf_distance_to_hat, scarf_height, foot_height, foot_radius, scarf
 
     difference() {
         translate([0, 0, -cylinder_distance_to_hat])
-        cylinder(h=foot_height, r=cylinder_radius_outer, $fn=100);
+        cylinder(h=foot_height, r=cylinder_radius_outer, $fn=100);  // base cylinder
         translate([0, 0, -cylinder_distance_to_hat])
-        cylinder(h=foot_height, r=cylinder_radius_inner, $fn=100);
-        poles_raw(scarf_distance_to_hat + scarf_height + foot_height, 0.5 * foot_height, pole_outer_radius, 0, pole_offset, number_of_poles);
-        poles_raw(scarf_distance_to_hat + scarf_height + 0.5 * foot_height, 0.5 * foot_height, pole_inner_radius, 0, pole_offset, number_of_poles);
+        cylinder(h=foot_height, r=cylinder_radius_inner, $fn=100);  // make cylinder hollow
+        poles_raw(scarf_distance_to_hat + scarf_height + foot_height, screw_head_height, pole_outer_radius, 0, pole_offset, number_of_poles);  // make room for screw head
+        poles_raw(scarf_distance_to_hat + scarf_height + screw_head_height, screw_head_height, screw_shaft_outer_radius, 0, pole_offset, number_of_poles);  // make room for screw shaft
     }    
 }
 
