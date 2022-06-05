@@ -27,7 +27,7 @@
 hat_diameter = 187;
 hat_height = 20 / 3 * 10;
 hat_wall_thickness = 1;
-hat_fn = 300;
+hat_fn = 300;  // 300
 
 scarf_distance_to_hat = 25;
 scarf_height = 60;
@@ -38,11 +38,12 @@ foot_height = 4;
 bulb_diameter = 60;  // alternative: 10
 bulb_spacing = 10;
 
-pole_diameter = 8;
+pole_outer_diameter = 8;
+pole_inner_diameter = 3;
 number_of_poles = 3;
 
 print_hat = true;
-print_foot = true;
+print_foot = false;
 
 //////////////////////////////////////////////////
 // useful variables
@@ -53,8 +54,9 @@ scarf_radius = scarf_diameter / 2;
 foot_diameter = bulb_diameter + 2 * bulb_spacing;
 foot_radius = foot_diameter / 2;
 
-pole_radius = pole_diameter / 2;
-pole_offset = foot_radius - pole_radius;
+pole_outer_radius = pole_outer_diameter / 2;
+pole_inner_radius = pole_inner_diameter / 2;
+pole_offset = foot_radius - pole_outer_radius;
 
 //////////////////////////////////////////////////
 // HAT ///////////////////////////////////////////
@@ -91,12 +93,15 @@ module hat(hat_height, hat_diameter, hat_wall_thickness, hat_fn) {
 // POLES /////////////////////////////////////////
 //////////////////////////////////////////////////
 
-module pole(position_offset, height, radius, x, y) {
+module pole(position_offset, height, outer_radius, inner_radius, x, y) {
     translate([x, y, -position_offset])
-    cylinder(h=height, r=radius, $fn=30);
+    difference() {
+        cylinder(h=height, r=outer_radius, $fn=30);
+        cylinder(h=height, r=inner_radius, $fn=30);
+    }
 }
 
-module poles_raw(pole_offset, pole_height, pole_radius, pole_distance_from_center, number_of_poles) {
+module poles_raw(pole_offset, pole_height, pole_outer_radius, pole_inner_radius, pole_distance_from_center, number_of_poles) {
     alpha = 360 / number_of_poles;
     
     for ( i = [0 : number_of_poles - 1] ) {
@@ -104,7 +109,8 @@ module poles_raw(pole_offset, pole_height, pole_radius, pole_distance_from_cente
         pole(
             pole_offset,
             pole_height,
-            pole_radius,
+            pole_outer_radius,
+            pole_inner_radius,
             pole_distance_from_center * sin(alpha_i),
             pole_distance_from_center * cos(alpha_i)
         );
@@ -121,7 +127,7 @@ module poles(scarf_distance_to_hat, scarf_height, hat_height, hat_diameter, pole
 
     // cut off the part of the poles which jut out of the hat
     difference() {
-        poles_raw(pole_offset, pole_height, pole_radius, pole_distance_from_center, number_of_poles);
+        poles_raw(pole_offset, pole_height, pole_outer_radius, pole_inner_radius, pole_distance_from_center, number_of_poles);
         translate([0, 0, -sphere_translation_z])
         difference() {
             sphere(r=sphere_outer_radius + hat_height, $fn=hat_fn);
@@ -156,8 +162,9 @@ module foot(scarf_distance_to_hat, scarf_height, foot_height, foot_radius, scarf
         translate([0, 0, -cylinder_distance_to_hat])
         cylinder(h=foot_height, r=cylinder_radius_outer, $fn=100);
         translate([0, 0, -cylinder_distance_to_hat])
-        cylinder(h=foot_height, r=(cylinder_radius_inner), $fn=100);
-        poles_raw(scarf_distance_to_hat + scarf_height + foot_height, 0.5 * foot_height, pole_radius, pole_offset, number_of_poles);
+        cylinder(h=foot_height, r=cylinder_radius_inner, $fn=100);
+        poles_raw(scarf_distance_to_hat + scarf_height + foot_height, 0.5 * foot_height, pole_outer_radius, 0, pole_offset, number_of_poles);
+        poles_raw(scarf_distance_to_hat + scarf_height + 0.5 * foot_height, 0.5 * foot_height, pole_inner_radius, 0, pole_offset, number_of_poles);
     }    
 }
 
