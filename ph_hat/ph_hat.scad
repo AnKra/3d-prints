@@ -42,8 +42,8 @@ pole_outer_diameter = 8;
 number_of_poles = 3;
 
 screw_head_height = 0.5 * foot_height;
-screw_shaft_outer_diameter = 4;
-screw_shaft_inner_diameter = 3;
+screw_shaft_outer_diameter = 5;
+screw_shaft_inner_diameter = 3.5;
 
 print_hat = true;
 print_foot = true;
