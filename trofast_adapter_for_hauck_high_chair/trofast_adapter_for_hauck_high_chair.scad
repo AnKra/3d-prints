@@ -2,7 +2,7 @@
 // constants
 //////////////////////////////////////////////////
 
-trofast_rail_width = 12.5;
+trofast_rail_width = 8.5;
 trofast_rail_height = 7.5;
 trofast_rail_cover_thickness = 4;
 
@@ -10,7 +10,7 @@ hauck_rail_width = 20.5;
 hauck_rail_height = 30;
 hauck_rail_offset_x = 4;
 
-total_width = hauck_rail_offset_x + hauck_rail_width + 1.1 + 2 * trofast_rail_width;
+total_width = hauck_rail_offset_x + hauck_rail_width + 4.1 + 2 * trofast_rail_width;
 total_depth = 180;
 total_height = hauck_rail_height + 40 + trofast_rail_height + trofast_rail_cover_thickness;
 
