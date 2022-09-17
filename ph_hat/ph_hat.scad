@@ -45,6 +45,8 @@ screw_head_height = 0.5 * foot_height;
 screw_shaft_outer_diameter = 5;
 screw_shaft_inner_diameter = 3.5;
 
+nail_hole_radius = 0.5;
+
 print_hat = true;
 print_foot = true;
 
@@ -101,15 +103,18 @@ module hat(hat_height, hat_diameter, hat_wall_thickness, hat_fn) {
 // POLES /////////////////////////////////////////
 //////////////////////////////////////////////////
 
-module pole(position_offset, height, outer_radius, inner_radius, x, y) {
-    translate([x, y, -position_offset])
+module pole(position_offset, height, outer_radius, inner_radius, x, y, rotate_by_90_deg) {
+    y_offset = rotate_by_90_deg ? height  / 2: 0;
+    angle = rotate_by_90_deg ? 90 : 0;
+    translate([x, y + y_offset, -position_offset])
+    rotate([angle, 0, 0])
     difference() {
         cylinder(h=height, r=outer_radius, $fn=30);
         cylinder(h=height, r=inner_radius, $fn=30);
     }
 }
 
-module poles_raw(pole_offset, pole_height, pole_outer_radius, pole_inner_radius, pole_distance_from_center, number_of_poles) {
+module poles_raw(pole_offset, pole_height, pole_outer_radius, pole_inner_radius, pole_distance_from_center, number_of_poles, rotate_by_90_deg = false) {
     alpha = 360 / number_of_poles;
     
     for ( i = [0 : number_of_poles - 1] ) {
@@ -120,12 +125,13 @@ module poles_raw(pole_offset, pole_height, pole_outer_radius, pole_inner_radius,
             pole_outer_radius,
             pole_inner_radius,
             pole_distance_from_center * sin(alpha_i),
-            pole_distance_from_center * cos(alpha_i)
+            pole_distance_from_center * cos(alpha_i),
+            rotate_by_90_deg
         );
     }
 }
 
-module poles_hat(hat_height, hat_diameter, hat_fn, pole_outer_radius, pole_inner_radius, pole_distance_from_center, number_of_poles) {
+module poles_hat(hat_height, hat_diameter, hat_fn, pole_outer_radius, pole_inner_radius, pole_distance_from_center, number_of_poles, stick_height, nail_hole_radius) {
     sphere_outer_radius = sphere_outer_radius(hat_height, hat_diameter);
 
     sphere_translation_z = sphere_translation_z(sphere_outer_radius, hat_height);
@@ -133,7 +139,7 @@ module poles_hat(hat_height, hat_diameter, hat_fn, pole_outer_radius, pole_inner
     pole_offset = 0;
     pole_height = hat_height;
 
-    // cut off the part of the poles which jut out of the hat
+    // cut off the part of the poles which jut out of the hat and the nail holes
     difference() {
         poles_raw(pole_offset, pole_height, pole_outer_radius, pole_inner_radius, pole_distance_from_center, number_of_poles);
         translate([0, 0, -sphere_translation_z])
@@ -141,10 +147,11 @@ module poles_hat(hat_height, hat_diameter, hat_fn, pole_outer_radius, pole_inner
             sphere(r=sphere_outer_radius + hat_height, $fn=hat_fn);
             sphere(r=sphere_outer_radius, $fn=hat_fn);
         }
+        poles_raw(-stick_height / 2, pole_outer_radius * 2, nail_hole_radius, 0, pole_distance_from_center, number_of_poles, true);  // nail hole
     }
 }
 
-module poles_scarf(scarf_distance_to_hat, scarf_height, hat_height, hat_diameter, hat_fn, pole_outer_radius, pole_inner_radius, pole_distance_from_center, number_of_poles, stick_height) {
+module poles_scarf(scarf_distance_to_hat, scarf_height, hat_height, hat_diameter, hat_fn, pole_outer_radius, pole_inner_radius, pole_distance_from_center, number_of_poles, stick_height, nail_hole_radius) {
     sphere_outer_radius = sphere_outer_radius(hat_height, hat_diameter);
 
     pole_offset = scarf_distance_to_hat + scarf_height;
@@ -152,11 +159,14 @@ module poles_scarf(scarf_distance_to_hat, scarf_height, hat_height, hat_diameter
     
     poles_raw(pole_offset, pole_height, pole_outer_radius, 0, pole_distance_from_center, number_of_poles);
     
-    // stick
+    // sticks with nail holes
     stick_offset = 0;
-    stick_radius = pole_inner_radius - 0.1;
+    stick_radius = pole_inner_radius - 0.2;
     
-    poles_raw(stick_offset, stick_height, stick_radius, 0, pole_distance_from_center, number_of_poles);
+    difference() {
+        poles_raw(stick_offset, stick_height, stick_radius, 0, pole_distance_from_center, number_of_poles); // sticks
+        poles_raw(-stick_height / 2, stick_radius * 2, nail_hole_radius, 0, pole_distance_from_center, number_of_poles, true);  // nail holes
+    }
 }
 
 //////////////////////////////////////////////////
@@ -197,12 +207,12 @@ module foot(scarf_distance_to_hat, scarf_height, foot_height, foot_radius, scarf
 
 if(print_hat) {
     hat(hat_height, hat_diameter, hat_wall_thickness, hat_fn);
-    poles_hat(hat_height, hat_diameter, hat_fn, pole_outer_radius, pole_inner_radius, pole_offset, number_of_poles);
+    poles_hat(hat_height, hat_diameter, hat_fn, pole_outer_radius, pole_inner_radius, pole_offset, number_of_poles, stick_height, nail_hole_radius);
     sphere_outer_radius = sphere_outer_radius(hat_height, hat_diameter);
 }
 
 if(print_foot) {
     scarf(scarf_distance_to_hat, scarf_height, scarf_radius, scarf_wall_thickness);
     foot(scarf_distance_to_hat, scarf_height, foot_height, foot_radius, scarf_radius);
-    poles_scarf(scarf_distance_to_hat, scarf_height, hat_height, hat_diameter, hat_fn, pole_outer_radius, pole_inner_radius, pole_offset, number_of_poles, stick_height);
+    poles_scarf(scarf_distance_to_hat, scarf_height, hat_height, hat_diameter, hat_fn, pole_outer_radius, pole_inner_radius, pole_offset, number_of_poles, stick_height, nail_hole_radius);
 }
