@@ -1,14 +1,18 @@
 
 
-wall_thickness = 1;
+wall_thickness_tube = 1;
+wall_thickness_holder = 2;
 
-tube_length = 31 + 2 * wall_thickness;
-tube_depth = 25 + 2 * wall_thickness;
+tube_length = 26 + 2 * wall_thickness_tube;
+tube_depth = 20 + 2 * wall_thickness_tube;
 tube_height = 65;
-cap_height = 7;
+
+cap_angle = 55;
+a = 0.5 * tube_length;
+cap_height = tan(cap_angle) * a ;
 
 holder_depth = 15;
-holder_height = 75;
+holder_height = 35;
 
 minkowski_radius = 4;
 
@@ -20,7 +24,7 @@ module tube_shape(length, depth, height, translation) {
     };    
 }
 
-module tube(length, depth, height) {
+module tube(length, depth, height, wall_thickness) {
     $fn=100;
     difference() {
         // outer shape
@@ -31,13 +35,13 @@ module tube(length, depth, height) {
     };
 }
 
-module holder(depth, height) {
+module holder(depth, height, wall_thickness) {
     // horizontal part
-    translate([0, tube_depth, tube_height])
+    translate([0, tube_depth, tube_height - wall_thickness_tube])
         cube([tube_length - minkowski_radius, depth, wall_thickness]);
 
     // vertical part
-    translate([0, tube_depth + depth, tube_height - height + wall_thickness])
+    translate([0, tube_depth + depth, tube_height - height - wall_thickness_tube + wall_thickness])
         cube([tube_length - minkowski_radius, wall_thickness, height]);
 }
 
@@ -52,7 +56,7 @@ module cap_shape(length, depth, height, translation) {
     cylinder(r=1);
 }
 
-module cap(length, depth, height) {
+module cap(length, depth, height, wall_thickness) {
     $fn=100;
     difference() {
         // outer shape
@@ -63,6 +67,6 @@ module cap(length, depth, height) {
     };
 }
 
-tube(tube_length, tube_depth, tube_height);
-holder(holder_depth, holder_height);
-cap(tube_length, tube_depth, cap_height);
+tube(tube_length, tube_depth, tube_height, wall_thickness_tube);
+holder(holder_depth, holder_height, wall_thickness_holder);
+cap(tube_length, tube_depth, cap_height, wall_thickness_tube);
